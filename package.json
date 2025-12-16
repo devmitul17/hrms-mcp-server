@@ -1,0 +1,36 @@
+{
+  "name": "hrms-mcp-server",
+  "version": "0.0.1",
+  "description": "hrms-mcp-server MCP server",
+  "type": "module",
+  "bin": {
+    "hrms-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "nodemon",
+    "build:win": "rmdir /s /q dist && mcp-build && node fix-imports.js",
+    "build": "mcp-build && node fix-imports.js",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "mcp-framework": "^0.2.2",
+    "prisma": "^6.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "dotenv": "^17.2.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "tsc-esm-fix": "^3.1.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.19.0"
+  }
+}

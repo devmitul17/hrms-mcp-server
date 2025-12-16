@@ -1,0 +1,914 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model EFMigrationsHistory {
+  MigrationId    String @id(map: "PK___EFMigrationsHistory") @db.NVarChar(150)
+  ProductVersion String @db.NVarChar(32)
+
+  @@map("__EFMigrationsHistory")
+}
+
+model ActivityLog {
+  Id                 String    @id(map: "PK_ActivityLog") @db.UniqueIdentifier
+  EventType          String?   @db.NVarChar(Max)
+  ActivityJson       String?   @db.NVarChar(Max)
+  EventLocation      String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  IPAddress          String?   @db.NVarChar(Max)
+}
+
+model Branches {
+  Id                 Int         @id(map: "PK_Branches") @default(autoincrement())
+  Code               String?     @db.NVarChar(Max)
+  Name               String?     @db.NVarChar(Max)
+  Description        String?     @db.NVarChar(Max)
+  CreatedDateTimeUtc DateTime    @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__Branches__Create__7D439ABD")
+  RecordStatus       Int
+  UpdatedDateTimeUtc DateTime?
+  Devices            Devices[]
+  Employees          Employees[]
+  Resources          Resources[]
+}
+
+model DesignationTypes {
+  Id                 Int                 @id(map: "PK_DesignationTypes") @default(autoincrement())
+  Name               String?             @db.NVarChar(Max)
+  Description        String?             @db.NVarChar(Max)
+  CreatedDateTimeUtc DateTime            @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__Designati__Creat__7F2BE32F")
+  RecordStatus       Int
+  UpdatedDateTimeUtc DateTime?
+  Order              Int                 @default(0, map: "DF__Designati__Order__7E37BEF6")
+  EmployeeContracts  EmployeeContracts[]
+  Employees          Employees[]
+}
+
+model DevicePunchLogs {
+  DeviceId           Int       @default(0, map: "DF__DevicePun__Devic__5D41AAD6")
+  UId                Int       @default(0, map: "DF__DevicePunch__UId__4EF38B7F")
+  DeviceUserId       String?   @db.NVarChar(Max)
+  IP                 String?   @db.NVarChar(Max)
+  IsCalculated       Boolean
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  TimeStamp          DateTime?
+  Id                 Int       @id(map: "PK_DevicePunchLogs") @default(autoincrement())
+}
+
+model Devices {
+  Id                 Int       @id(map: "PK_Devices") @default(autoincrement())
+  DeviceIP           String?   @db.NVarChar(Max)
+  BranchId           Int
+  Name               String?   @db.NVarChar(Max)
+  Pass               String?   @db.NVarChar(Max)
+  Port               String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  SerialNumber       String?   @db.NVarChar(Max)
+  Branches           Branches  @relation(fields: [BranchId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Devices_Branches_BranchId")
+
+  @@index([BranchId], map: "IX_Devices_BranchId")
+}
+
+model DeviceSyncInformation {
+  Id                 Int       @id(map: "PK_DeviceSyncInformation") @default(autoincrement())
+  DeviceId           Int
+  LastSYNCDateTime   DateTime
+  NoOfRecordSYNC     Int
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+}
+
+model DeviceUsers {
+  Id                 Int       @id(map: "PK_DeviceUsers") @default(autoincrement())
+  DeviceId           Int
+  UId                String?   @db.NVarChar(Max)
+  DeviceUserId       Int
+  EmployeeId         Int
+  Name               String?   @db.NVarChar(Max)
+  Password           String?   @db.NVarChar(Max)
+  CardNo             String?   @db.NVarChar(Max)
+  Role               String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+}
+
+model DocumentTypes {
+  Id                 Int                 @id(map: "PK_DocumentTypes") @default(autoincrement())
+  Name               String?             @db.NVarChar(Max)
+  Description        String?             @db.NVarChar(Max)
+  CreatedDateTimeUtc DateTime            @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__DocumentT__Creat__00200768")
+  RecordStatus       Int
+  UpdatedDateTimeUtc DateTime?
+  EmployeeDocuments  EmployeeDocuments[]
+}
+
+model EmployeeAddresses {
+  Id                                                                    Int               @id(map: "PK_EmployeeAddresses") @default(autoincrement())
+  AddressLine1                                                          String?           @db.NVarChar(Max)
+  AddressLine2                                                          String?           @db.NVarChar(Max)
+  City                                                                  String?           @db.NVarChar(Max)
+  Country                                                               String?           @db.NVarChar(Max)
+  State                                                                 String?           @db.NVarChar(Max)
+  Pincode                                                               Int
+  RecordStatus                                                          Int
+  CreatedDateTimeUtc                                                    DateTime
+  UpdatedDateTimeUtc                                                    DateTime?
+  CreatedByUserId                                                       Int?
+  UpdatedByUserId                                                       Int?
+  EmployeeDetails_EmployeeDetails_PermanentAddressIdToEmployeeAddresses EmployeeDetails[] @relation("EmployeeDetails_PermanentAddressIdToEmployeeAddresses")
+  EmployeeDetails_EmployeeDetails_PresentAddressIdToEmployeeAddresses   EmployeeDetails[] @relation("EmployeeDetails_PresentAddressIdToEmployeeAddresses")
+}
+
+model EmployeeAttendance {
+  Id                 Int       @id(map: "PK_EmployeeAttendance") @default(autoincrement())
+  DeviceUserId       Int?
+  EmployeeId         Int?
+  AttendanceDate     DateTime?
+  NoOfPunch          Int?
+  InTime             DateTime? @db.Time
+  OutTime            DateTime? @db.Time
+  Duration           DateTime? @db.Time
+  LateComing         DateTime? @db.Time
+  EarlyGoing         DateTime? @db.Time
+  OverTime           DateTime? @db.Time
+  Break1Duration     DateTime? @db.Time
+  Break2Duration     DateTime? @db.Time
+  RawPunch           String?   @db.NVarChar(Max)
+  IsPresent          Boolean?
+  Remarks            String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+}
+
+model EmployeeBankDetails {
+  Id                  Int               @id(map: "PK_EmployeeBankDetails") @default(autoincrement())
+  TransactionType     String?           @db.NVarChar(Max)
+  BeneficiaryACNumber String?           @db.NVarChar(Max)
+  BeneficiaryName     String?           @db.NVarChar(Max)
+  IFSCCode            String?           @db.NVarChar(Max)
+  BankName            String?           @db.NVarChar(Max)
+  BeneficiaryEmail    String?           @db.NVarChar(Max)
+  RecordStatus        Int
+  CreatedDateTimeUtc  DateTime
+  UpdatedDateTimeUtc  DateTime?
+  CreatedByUserId     Int?
+  UpdatedByUserId     Int?
+  EmployeeDetails     EmployeeDetails[]
+}
+
+model EmployeeContracts {
+  Id                        Int                         @id(map: "PK_EmployeeContracts") @default(autoincrement())
+  EmployeeId                Int
+  ContractStartDate         DateTime
+  ContractEndDate           DateTime
+  ProbationPeriod           Int
+  TrainingPeriod            Int
+  DesignationTypeId         Int
+  EmployeeContractStatusId  Int
+  DropDate                  DateTime
+  NoticePeriodStartDate     DateTime
+  NoticePeriodEndDate       DateTime
+  RecordStatus              Int
+  CreatedDateTimeUtc        DateTime
+  UpdatedDateTimeUtc        DateTime?
+  CreatedByUserId           Int?
+  UpdatedByUserId           Int?
+  DropRemarks               String?                     @db.NVarChar(Max)
+  IsProjectTrainee          Boolean                     @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__EmployeeC__IsPro__01142BA1")
+  NoticeRemarks             String?                     @db.NVarChar(Max)
+  Remarks                   String?                     @db.NVarChar(Max)
+  ImagekitDetailId          String?                     @db.UniqueIdentifier
+  TerminateDate             DateTime?
+  TerminateRemarks          String?                     @db.NVarChar(Max)
+  DesignationTypes          DesignationTypes            @relation(fields: [DesignationTypeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeContracts_DesignationTypes_DesignationTypeId")
+  EmployeeContractStatus    EmployeeContractStatus      @relation(fields: [EmployeeContractStatusId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeContracts_EmployeeContractStatus_EmployeeContractStatusId")
+  Employees                 Employees                   @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeContracts_Employees_EmployeeId")
+  ImagekitDetails           ImagekitDetails?            @relation(fields: [ImagekitDetailId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeContracts_ImagekitDetails_ImagekitDetailId")
+  EmployeeEarningGross      EmployeeEarningGross[]
+  EmployeeFixGross          EmployeeFixGross?
+  EmployeeIncentiveDetails  EmployeeIncentiveDetails[]
+  EmployeeLeaveApplications EmployeeLeaveApplications[]
+  EmployeeLeaves            EmployeeLeaves[]
+  EmployeeLeaveTransactions EmployeeLeaveTransactions[]
+  EmployeeOverTimes         EmployeeOverTimes[]
+
+  @@index([DesignationTypeId], map: "IX_EmployeeContracts_DesignationTypeId")
+  @@index([EmployeeContractStatusId], map: "IX_EmployeeContracts_EmployeeContractStatusId")
+  @@index([EmployeeId], map: "IX_EmployeeContracts_EmployeeId")
+  @@index([ImagekitDetailId], map: "IX_EmployeeContracts_ImagekitDetailId")
+}
+
+model EmployeeContractStatus {
+  Id                 Int                 @id(map: "PK_EmployeeContractStatus") @default(autoincrement())
+  StatusType         String?             @db.NVarChar(Max)
+  Description        String?             @db.NVarChar(Max)
+  CreatedDateTimeUtc DateTime            @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeC__Creat__02084FDA")
+  RecordStatus       Int
+  UpdatedDateTimeUtc DateTime?
+  EmployeeContracts  EmployeeContracts[]
+}
+
+model EmployeeDetails {
+  Id                                                                      Int                  @id(map: "PK_EmployeeDetails") @default(autoincrement())
+  EmployeeId                                                              Int
+  WorkEmail                                                               String?              @db.VarChar(255)
+  PersonalEmail                                                           String?              @db.VarChar(255)
+  MobileNumber                                                            String?              @db.NVarChar(Max)
+  AlternateMobileNumber                                                   String?              @db.NVarChar(Max)
+  PreviousEmployeer                                                       String?              @db.VarChar(Max)
+  Experience                                                              Decimal?             @db.Decimal(18, 2)
+  JoinDate                                                                DateTime?
+  EndDate                                                                 DateTime?
+  AllowEditPersonalDetails                                                Boolean
+  CreatedByUserId                                                         Int?
+  CreatedDateTimeUtc                                                      DateTime             @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeD__Creat__02FC7413")
+  RecordStatus                                                            Int                  @default(0, map: "DF__EmployeeD__Recor__03F0984C")
+  UpdatedByUserId                                                         Int?
+  UpdatedDateTimeUtc                                                      DateTime?
+  PermanentAddressId                                                      Int?
+  PresentAddressId                                                        Int?
+  InstituteName                                                           String?              @db.NVarChar(Max)
+  WorkingFormat                                                           String?              @db.VarChar(Max)
+  HasExited                                                               Boolean              @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__EmployeeD__HasEx__04E4BC85")
+  HasFNFSettled                                                           Boolean              @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__EmployeeD__HasFN__05D8E0BE")
+  EmployeeBankDetailId                                                    Int?
+  EmployeeAddresses_EmployeeDetails_PermanentAddressIdToEmployeeAddresses EmployeeAddresses?   @relation("EmployeeDetails_PermanentAddressIdToEmployeeAddresses", fields: [PermanentAddressId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeDetails_EmployeeAddresses_PermanentAddressId")
+  EmployeeAddresses_EmployeeDetails_PresentAddressIdToEmployeeAddresses   EmployeeAddresses?   @relation("EmployeeDetails_PresentAddressIdToEmployeeAddresses", fields: [PresentAddressId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeDetails_EmployeeAddresses_PresentAddressId")
+  EmployeeBankDetails                                                     EmployeeBankDetails? @relation(fields: [EmployeeBankDetailId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeDetails_EmployeeBankDetails_EmployeeBankDetailId")
+  Employees                                                               Employees            @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeDetails_Employees_EmployeeId")
+
+  @@index([EmployeeBankDetailId], map: "IX_EmployeeDetails_EmployeeBankDetailId")
+  @@index([EmployeeId], map: "IX_EmployeeDetails_EmployeeId")
+  @@index([PermanentAddressId], map: "IX_EmployeeDetails_PermanentAddressId")
+  @@index([PresentAddressId], map: "IX_EmployeeDetails_PresentAddressId")
+}
+
+model EmployeeDocuments {
+  Id                 Int              @id(map: "PK_EmployeeDocuments") @default(autoincrement())
+  EmployeeId         Int
+  DocumentTypeId     Int
+  DocumentFront      String?          @db.NVarChar(Max)
+  DocumentBack       String?          @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  ImagekitDetailId   String?          @db.UniqueIdentifier
+  DocumentTypes      DocumentTypes    @relation(fields: [DocumentTypeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeDocuments_DocumentTypes_DocumentTypeId")
+  Employees          Employees        @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeDocuments_Employees_EmployeeId")
+  ImagekitDetails    ImagekitDetails? @relation(fields: [ImagekitDetailId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeDocuments_ImagekitDetails_ImagekitDetailId")
+
+  @@index([DocumentTypeId], map: "IX_EmployeeDocuments_DocumentTypeId")
+  @@index([EmployeeId], map: "IX_EmployeeDocuments_EmployeeId")
+  @@index([ImagekitDetailId], map: "IX_EmployeeDocuments_ImagekitDetailId")
+}
+
+model EmployeeEarningGross {
+  Id                           Int                        @id(map: "PK_EmployeeEarningGross") @default(autoincrement())
+  EmployeeContractId           Int
+  SalaryMonth                  String?                    @db.NVarChar(Max)
+  TotalDays                    Float
+  LWP                          Float
+  PaidDays                     Float
+  Basic                        Float
+  DA                           Float
+  HRA                          Float
+  ConveyanceAllowance          Float
+  OtherAllowance               Float
+  FixIncentive                 Float
+  PT                           Int
+  TDS                          Float
+  EmployerPF                   Float
+  OverTimeAmount               Float
+  NetSalary                    Float
+  Remarks                      String?                    @db.NVarChar(Max)
+  EmployeeEarningGrossStatusId Int
+  PaidDate                     DateTime?
+  RecordStatus                 Int
+  CreatedDateTimeUtc           DateTime
+  UpdatedDateTimeUtc           DateTime?
+  CreatedByUserId              Int?
+  UpdatedByUserId              Int?
+  EmployeePF                   Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Emplo__06CD04F7")
+  CalculationType              String?                    @db.NVarChar(Max)
+  DaysJSON                     String?                    @db.NVarChar(Max)
+  Incentive                    Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Incen__0B91BA14")
+  CreatedBy                    Int?
+  PartlyPaid                   Boolean                    @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__EmployeeE__Partl__0C85DE4D")
+  AdjustmentAmount             Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Adjus__0D7A0286")
+  SalaryYear                   Int                        @default(0, map: "DF__EmployeeE__Salar__0E6E26BF")
+  ChildEducation               Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Child__07C12930")
+  VariablePay                  Float                      @default(0.0000000000000000, map: "DF__EmployeeEar__ESI__08B54D69")
+  LTA                          Float                      @default(0.0000000000000000, map: "DF__EmployeeEar__LTA__09A971A2")
+  MedicalAllowance             Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Medic__0A9D95DB")
+  EmployeeESIC                 Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Emplo__26268016")
+  EmployerESIC                 Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Emplo__271AA44F")
+  OtherDeduction               Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Other__2902ECC1")
+  ActualWorkingDays            Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Actua__30A40E89")
+  LeaveEncashment              Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Leave__43B6E2FD")
+  ActualOtherAllowance         Float                      @default(0.0000000000000000, map: "DF__EmployeeE__Actua__6F605B11")
+  EmployeeContracts            EmployeeContracts          @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeEarningGross_EmployeeContracts_EmployeeContractId")
+  EmployeeEarningGrossStatus   EmployeeEarningGrossStatus @relation(fields: [EmployeeEarningGrossStatusId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeEarningGross_EmployeeEarningGrossStatus_EmployeeEarningGrossStatusId")
+  Employees                    Employees?                 @relation(fields: [CreatedBy], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeEarningGross_Employees_CreatedBy")
+  EmployeeHoldSalary           EmployeeHoldSalary[]
+
+  @@index([CreatedBy], map: "IX_EmployeeEarningGross_CreatedBy")
+  @@index([EmployeeContractId], map: "IX_EmployeeEarningGross_EmployeeContractId")
+  @@index([EmployeeEarningGrossStatusId], map: "IX_EmployeeEarningGross_EmployeeEarningGrossStatusId")
+}
+
+model EmployeeEarningGrossStatus {
+  Id                   Int                    @id(map: "PK_EmployeeEarningGrossStatus") @default(autoincrement())
+  StatusType           String?                @db.NVarChar(Max)
+  Description          String?                @db.NVarChar(Max)
+  CreatedDateTimeUtc   DateTime               @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeE__Creat__0F624AF8")
+  RecordStatus         Int
+  UpdatedDateTimeUtc   DateTime?
+  EmployeeEarningGross EmployeeEarningGross[]
+}
+
+model EmployeeFixGross {
+  Id                       Int               @id(map: "PK_EmployeeFixGross") @default(autoincrement())
+  EmployeeContractId       Int               @unique(map: "IX_EmployeeFixGross_EmployeeContractId")
+  CostToCompany            Decimal           @db.Decimal(18, 2)
+  Basic                    Float
+  DA                       Float
+  HRA                      Float
+  ConveyanceAllowance      Float
+  OtherAllowance           Float
+  IsFixIncentive           Boolean
+  FixIncentiveDuration     Int
+  FixIncentiveRemarks      String?           @db.NVarChar(Max)
+  Remarks                  String?           @db.NVarChar(Max)
+  IsDelete                 Boolean?
+  RecordStatus             Int
+  CreatedDateTimeUtc       DateTime
+  UpdatedDateTimeUtc       DateTime?
+  CreatedByUserId          Int?
+  UpdatedByUserId          Int?
+  StipendAmount            Float             @default(0.0000000000000000, map: "DF__EmployeeF__Stipe__10566F31")
+  ChildEducation           Float             @default(0.0000000000000000, map: "DF__EmployeeF__Child__114A936A")
+  LTA                      Float             @default(0.0000000000000000, map: "DF__EmployeeFix__LTA__123EB7A3")
+  MedicalAllowance         Float             @default(0.0000000000000000, map: "DF__EmployeeF__Medic__1332DBDC")
+  AnnualCTC                Float             @default(0.0000000000000000, map: "DF__EmployeeF__Annua__1D913A15")
+  AnnualFixIncentiveAmount Float             @default(0.0000000000000000, map: "DF__EmployeeF__Annua__1E855E4E")
+  EmployeeESIC             Float             @default(0.0000000000000000, map: "DF__EmployeeF__Emplo__1F798287")
+  EmployeePF               Float             @default(0.0000000000000000, map: "DF__EmployeeF__Emplo__206DA6C0")
+  EmployerESIC             Float             @default(0.0000000000000000, map: "DF__EmployeeF__Emplo__2161CAF9")
+  EmployerPF               Float             @default(0.0000000000000000, map: "DF__EmployeeF__Emplo__2255EF32")
+  IsESICApplied            Boolean?
+  IsPFApplied              Boolean?
+  IsVerified               Boolean?
+  OtherDeduction           Float             @default(0.0000000000000000, map: "DF__EmployeeF__Other__234A136B")
+  PT                       Float             @default(0.0000000000000000, map: "DF__EmployeeFixG__PT__243E37A4")
+  VariablePay              Float             @default(0.0000000000000000, map: "DF__EmployeeF__Varia__25325BDD")
+  CalculationType          String?           @db.NVarChar(Max)
+  ActualOtherAllowance     Float             @default(0.0000000000000000, map: "DF__EmployeeF__Actua__02732F85")
+  EmployeeContracts        EmployeeContracts @relation(fields: [EmployeeContractId], references: [Id], onUpdate: NoAction, map: "FK_EmployeeFixGross_EmployeeContracts_EmployeeContractId")
+}
+
+model EmployeeFNFDetails {
+  Id                   Int       @id(map: "PK_EmployeeFNFDetails") @default(autoincrement())
+  EmployeeId           Int
+  FNFDueDate           DateTime?
+  ExitNote             String?   @db.NVarChar(Max)
+  Remarks              String?   @db.NVarChar(Max)
+  HasCertificateIssued Boolean
+  HasSalaryProceed     Boolean
+  SettlementDate       DateTime?
+  SettlementBy         String?   @db.VarChar(Max)
+  RecordStatus         Int
+  CreatedDateTimeUtc   DateTime
+  UpdatedDateTimeUtc   DateTime?
+  CreatedByUserId      Int?
+  UpdatedByUserId      Int?
+  Employees            Employees @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeFNFDetails_Employees_EmployeeId")
+
+  @@index([EmployeeId], map: "IX_EmployeeFNFDetails_EmployeeId")
+}
+
+model EmployeeHoldSalary {
+  Id                     String               @id(map: "PK_EmployeeHoldSalary") @db.UniqueIdentifier
+  EmployeeEarningGrossId Int
+  HoldAmount             Float?
+  EmployeeSalaryStatusId Int
+  Remarks                String?              @db.NVarChar(Max)
+  PaidDate               DateTime?
+  RecordStatus           Int
+  CreatedDateTimeUtc     DateTime
+  UpdatedDateTimeUtc     DateTime?
+  CreatedByUserId        Int?
+  UpdatedByUserId        Int?
+  EmployeeEarningGross   EmployeeEarningGross @relation(fields: [EmployeeEarningGrossId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeHoldSalary_EmployeeEarningGross_EmployeeEarningGrossId")
+  EmployeeSalaryStatus   EmployeeSalaryStatus @relation(fields: [EmployeeSalaryStatusId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeHoldSalary_EmployeeSalaryStatus_EmployeeSalaryStatusId")
+
+  @@index([EmployeeEarningGrossId], map: "IX_EmployeeHoldSalary_EmployeeEarningGrossId")
+  @@index([EmployeeSalaryStatusId], map: "IX_EmployeeHoldSalary_EmployeeSalaryStatusId")
+}
+
+model EmployeeIncentiveDetails {
+  Id                        Int                     @id(map: "PK_EmployeeIncentiveDetails") @default(autoincrement())
+  EmployeeContractId        Int
+  IncentiveDate             DateTime?
+  IncentiveAmount           Float?
+  EmployeeIncentiveStatusId Int
+  Remarks                   String?                 @db.NVarChar(Max)
+  RecordStatus              Int
+  CreatedDateTimeUtc        DateTime
+  UpdatedDateTimeUtc        DateTime?
+  CreatedByUserId           Int?
+  UpdatedByUserId           Int?
+  EmployeeContracts         EmployeeContracts       @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeIncentiveDetails_EmployeeContracts_EmployeeContractId")
+  EmployeeIncentiveStatus   EmployeeIncentiveStatus @relation(fields: [EmployeeIncentiveStatusId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeIncentiveDetails_EmployeeIncentiveStatus_EmployeeIncentiveStatusId")
+
+  @@index([EmployeeContractId], map: "IX_EmployeeIncentiveDetails_EmployeeContractId")
+  @@index([EmployeeIncentiveStatusId], map: "IX_EmployeeIncentiveDetails_EmployeeIncentiveStatusId")
+}
+
+model EmployeeIncentiveStatus {
+  Id                       Int                        @id(map: "PK_EmployeeIncentiveStatus") @default(autoincrement())
+  StatusType               String?                    @db.NVarChar(Max)
+  Description              String?                    @db.NVarChar(Max)
+  CreatedDateTimeUtc       DateTime                   @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeI__Creat__14270015")
+  RecordStatus             Int                        @default(0, map: "DF__EmployeeI__Recor__151B244E")
+  UpdatedDateTimeUtc       DateTime?
+  EmployeeIncentiveDetails EmployeeIncentiveDetails[]
+}
+
+model EmployeeLeaveApplicationComments {
+  Id                         String                    @id(map: "PK_EmployeeLeaveApplicationComments") @db.UniqueIdentifier
+  EmployeeLeaveApplicationId String                    @db.UniqueIdentifier
+  Comments                   String?                   @db.NVarChar(Max)
+  CommentBy                  Int?
+  CommentDate                DateTime
+  CreatedDateTimeUtc         DateTime                  @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeL__Creat__160F4887")
+  RecordStatus               Int                       @default(0, map: "DF__EmployeeL__Recor__17036CC0")
+  UpdatedDateTimeUtc         DateTime?
+  EmployeeLeaveApplications  EmployeeLeaveApplications @relation(fields: [EmployeeLeaveApplicationId], references: [Id], onUpdate: NoAction, map: "FK_EmployeeLeaveApplicationComments_EmployeeLeaveApplications_EmployeeLeaveApplicationId")
+  Employees                  Employees?                @relation(fields: [CommentBy], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeLeaveApplicationComments_Employees_CommentBy")
+
+  @@index([CommentBy], map: "IX_EmployeeLeaveApplicationComments_CommentBy")
+  @@index([EmployeeLeaveApplicationId], map: "IX_EmployeeLeaveApplicationComments_EmployeeLeaveApplicationId")
+}
+
+model EmployeeLeaveApplicationManagers {
+  Id                         String                     @id(map: "PK_EmployeeLeaveApplicationManagers") @db.UniqueIdentifier
+  EmployeeId                 Int?
+  EmployeeLeaveApplicationId String?                    @db.UniqueIdentifier
+  EmployeeLeaveApplications  EmployeeLeaveApplications? @relation(fields: [EmployeeLeaveApplicationId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeLeaveApplicationManagers_EmployeeLeaveApplications_EmployeeLeaveApplicationId")
+  Employees                  Employees?                 @relation(fields: [EmployeeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeLeaveApplicationManagers_Employees_EmployeeId")
+
+  @@index([EmployeeId], map: "IX_EmployeeLeaveApplicationManagers_EmployeeId")
+  @@index([EmployeeLeaveApplicationId], map: "IX_EmployeeLeaveApplicationManagers_EmployeeLeaveApplicationId")
+}
+
+model EmployeeLeaveApplications {
+  Id                               String                             @id(map: "PK_EmployeeLeaveApplications") @db.UniqueIdentifier
+  EmployeeContractId               Int
+  LeaveTypeId                      Int
+  ApplyDate                        DateTime?
+  LeaveFromDate                    DateTime?
+  LeaveToDate                      DateTime?
+  NoOfDays                         Float
+  PurposeOfLeave                   String?                            @db.NVarChar(Max)
+  EmployeeLeaveStatusId            Int
+  ApprovedBy                       Int?
+  ApprovedDate                     DateTime?
+  RecordStatus                     Int
+  CreatedDateTimeUtc               DateTime
+  UpdatedDateTimeUtc               DateTime?
+  CreatedByUserId                  Int?
+  UpdatedByUserId                  Int?
+  ApprovedRemark                   String?                            @db.NVarChar(Max)
+  ApprovedDays                     Float                              @default(0.0000000000000000, map: "DF__EmployeeL__Appro__18EBB532")
+  LWPDays                          Float                              @default(0.0000000000000000, map: "DF__EmployeeL__LWPDa__19DFD96B")
+  ApprovedFromDate                 DateTime?
+  ApprovedToDate                   DateTime?
+  DeclineDays                      Float                              @default(0.0000000000000000, map: "DF__EmployeeL__Decli__17F790F9")
+  LeaveCategoryId                  Int?
+  HasSynced                        Boolean                            @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__EmployeeL__HasSy__158603F9")
+  EmployeeLeaveApplicationComments EmployeeLeaveApplicationComments[]
+  EmployeeLeaveApplicationManagers EmployeeLeaveApplicationManagers[]
+  EmployeeContracts                EmployeeContracts                  @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaveApplications_EmployeeContracts_EmployeeContractId")
+  EmployeeLeaveStatus              EmployeeLeaveStatus                @relation(fields: [EmployeeLeaveStatusId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaveApplications_EmployeeLeaveStatus_EmployeeLeaveStatusId")
+  Employees                        Employees?                         @relation(fields: [ApprovedBy], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeLeaveApplications_Employees_ApprovedBy")
+  LeaveCategories                  LeaveCategories?                   @relation(fields: [LeaveCategoryId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeLeaveApplications_LeaveCategories_LeaveCategoryId")
+  LeaveTypes                       LeaveTypes                         @relation(fields: [LeaveTypeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaveApplications_LeaveTypes_LeaveTypeId")
+
+  @@index([ApprovedBy], map: "IX_EmployeeLeaveApplications_ApprovedBy")
+  @@index([EmployeeContractId], map: "IX_EmployeeLeaveApplications_EmployeeContractId")
+  @@index([EmployeeLeaveStatusId], map: "IX_EmployeeLeaveApplications_EmployeeLeaveStatusId")
+  @@index([LeaveCategoryId], map: "IX_EmployeeLeaveApplications_LeaveCategoryId")
+  @@index([LeaveTypeId], map: "IX_EmployeeLeaveApplications_LeaveTypeId")
+}
+
+model EmployeeLeaves {
+  Id                 Int               @id(map: "PK_EmployeeLeaves") @default(autoincrement())
+  EmployeeContractId Int
+  LeaveStartDate     DateTime
+  LeaveEndDate       DateTime
+  LeaveTypeId        Int
+  TotalLeaves        Float
+  TotalLeavesTaken   Float
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  EmployeeContracts  EmployeeContracts @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaves_EmployeeContracts_EmployeeContractId")
+  LeaveTypes         LeaveTypes        @relation(fields: [LeaveTypeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaves_LeaveTypes_LeaveTypeId")
+
+  @@index([EmployeeContractId], map: "IX_EmployeeLeaves_EmployeeContractId")
+  @@index([LeaveTypeId], map: "IX_EmployeeLeaves_LeaveTypeId")
+}
+
+model EmployeeLeaveStatus {
+  Id                        Int                         @id(map: "PK_EmployeeLeaveStatus") @default(autoincrement())
+  StatusType                String?                     @db.NVarChar(Max)
+  Description               String?                     @db.NVarChar(Max)
+  RecordStatus              Int
+  CreatedDateTimeUtc        DateTime
+  UpdatedDateTimeUtc        DateTime?
+  EmployeeLeaveApplications EmployeeLeaveApplications[]
+}
+
+model EmployeeLeaveTransactions {
+  Id                 Int               @id(map: "PK_EmployeeLeaveTransactions") @default(autoincrement())
+  EmployeeContractId Int
+  TransactionDate    DateTime?
+  Description        String?           @db.NVarChar(Max)
+  Added              Float?
+  Used               Float?
+  Balance            Float?
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  LWP                Float?
+  TransactionType    String?           @db.NVarChar(Max)
+  EmployeeContracts  EmployeeContracts @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeLeaveTransactions_EmployeeContracts_EmployeeContractId")
+
+  @@index([EmployeeContractId], map: "IX_EmployeeLeaveTransactions_EmployeeContractId")
+}
+
+model EmployeeOverTimeManagers {
+  Id                 Int                @id(map: "PK_EmployeeOverTimeManagers") @default(autoincrement())
+  EmployeeId         Int?
+  EmployeeOvertimeId Int?
+  EmployeeOverTimes  EmployeeOverTimes? @relation(fields: [EmployeeOvertimeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeOverTimeManagers_EmployeeOverTimes_EmployeeOvertimeId")
+  Employees          Employees?         @relation(fields: [EmployeeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeOverTimeManagers_Employees_EmployeeId")
+
+  @@index([EmployeeId], map: "IX_EmployeeOverTimeManagers_EmployeeId")
+  @@index([EmployeeOvertimeId], map: "IX_EmployeeOverTimeManagers_EmployeeOvertimeId")
+}
+
+model EmployeeOverTimes {
+  Id                       Int                        @id(map: "PK_EmployeeOverTimes") @default(autoincrement())
+  EmployeeContractId       Int
+  ProjectName              String?                    @db.NVarChar(Max)
+  TaskDescription          String?                    @db.NVarChar(Max)
+  OverTimeDate             DateTime?
+  EmployeeOverTimeStatusId Int?
+  ApprovedBy               Int?
+  ApprovedDate             DateTime?
+  Remarks                  String?                    @db.NVarChar(Max)
+  RecordStatus             Int
+  CreatedDateTimeUtc       DateTime
+  UpdatedDateTimeUtc       DateTime?
+  CreatedByUserId          Int?
+  UpdatedByUserId          Int?
+  OverTimeAmount           Decimal?                   @db.Decimal(18, 2)
+  ApprovedMinutes          DateTime?                  @db.Time
+  OverTimeMinutes          DateTime?                  @db.Time
+  EmployeeOverTimeManagers EmployeeOverTimeManagers[]
+  EmployeeContracts        EmployeeContracts          @relation(fields: [EmployeeContractId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeOverTimes_EmployeeContracts_EmployeeContractId")
+  EmployeeOverTimeStatus   EmployeeOverTimeStatus?    @relation(fields: [EmployeeOverTimeStatusId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeOverTimes_EmployeeOverTimeStatus_EmployeeOverTimeStatusId")
+  Employees                Employees?                 @relation(fields: [ApprovedBy], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_EmployeeOverTimes_Employees_ApprovedBy")
+
+  @@index([ApprovedBy], map: "IX_EmployeeOverTimes_ApprovedBy")
+  @@index([EmployeeContractId], map: "IX_EmployeeOverTimes_EmployeeContractId")
+  @@index([EmployeeOverTimeStatusId], map: "IX_EmployeeOverTimes_EmployeeOverTimeStatusId")
+}
+
+model EmployeeOverTimeStatus {
+  Id                 Int                 @id(map: "PK_EmployeeOverTimeStatus") @default(autoincrement())
+  StatusType         String?             @db.NVarChar(Max)
+  Description        String?             @db.NVarChar(Max)
+  CreatedDateTimeUtc DateTime            @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__EmployeeO__Creat__1AD3FDA4")
+  RecordStatus       Int
+  UpdatedDateTimeUtc DateTime?
+  EmployeeOverTimes  EmployeeOverTimes[]
+}
+
+model Employees {
+  Id                               Int                                @id(map: "PK_Employees") @default(autoincrement())
+  UserId                           Int?
+  EmployeeCode                     String?                            @db.NVarChar(Max)
+  FirstName                        String?                            @db.NVarChar(Max)
+  MiddleName                       String?                            @db.NVarChar(Max)
+  LastName                         String?                            @db.NVarChar(Max)
+  Email                            String?                            @db.NVarChar(Max)
+  DateOfBirth                      DateTime
+  Gender                           String?                            @db.NVarChar(Max)
+  BranchId                         Int?
+  CreatedByUserId                  Int?
+  CreatedDateTimeUtc               DateTime                           @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__Employees__Creat__1BC821DD")
+  RecordStatus                     Int                                @default(0, map: "DF__Employees__Recor__1CBC4616")
+  UpdatedByUserId                  Int?
+  UpdatedDateTimeUtc               DateTime?
+  DesignationTypeId                Int?
+  ImagekitDetailId                 String?                            @db.UniqueIdentifier
+  SlackUserId                      String?                            @db.NVarChar(Max)
+  EmployeeContracts                EmployeeContracts[]
+  EmployeeDetails                  EmployeeDetails[]
+  EmployeeDocuments                EmployeeDocuments[]
+  EmployeeEarningGross             EmployeeEarningGross[]
+  EmployeeFNFDetails               EmployeeFNFDetails[]
+  EmployeeLeaveApplicationComments EmployeeLeaveApplicationComments[]
+  EmployeeLeaveApplicationManagers EmployeeLeaveApplicationManagers[]
+  EmployeeLeaveApplications        EmployeeLeaveApplications[]
+  EmployeeOverTimeManagers         EmployeeOverTimeManagers[]
+  EmployeeOverTimes                EmployeeOverTimes[]
+  Branches                         Branches?                          @relation(fields: [BranchId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Employees_Branches_BranchId")
+  DesignationTypes                 DesignationTypes?                  @relation(fields: [DesignationTypeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Employees_DesignationTypes_DesignationTypeId")
+  ImagekitDetails                  ImagekitDetails?                   @relation(fields: [ImagekitDetailId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Employees_ImagekitDetails_ImagekitDetailId")
+  Users                            Users?                             @relation(fields: [UserId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Employees_Users_UserId")
+  EmployeeTaxStatutoryNumber       EmployeeTaxStatutoryNumber[]
+  Notification                     Notification[]
+  ProjectManagers                  ProjectManagers[]
+  ResourceUserHistory              ResourceUserHistory[]
+
+  @@index([BranchId], map: "IX_Employees_BranchId")
+  @@index([DesignationTypeId], map: "IX_Employees_DesignationTypeId")
+  @@index([ImagekitDetailId], map: "IX_Employees_ImagekitDetailId")
+}
+
+model EmployeeSalaryStatus {
+  Id                 Int                  @id(map: "PK_EmployeeSalaryStatus") @default(autoincrement())
+  StatusType         String?              @db.NVarChar(Max)
+  Description        String?              @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  EmployeeHoldSalary EmployeeHoldSalary[]
+}
+
+model EmployeeStatus {
+  Id     Int     @id(map: "PK_EmployeeStatus") @default(autoincrement())
+  Status String? @db.NVarChar(Max)
+}
+
+model EmployeeTaxStatutoryNumber {
+  Id                 Int       @id(map: "PK_EmployeeTaxStatutoryNumber") @default(autoincrement())
+  EmployeeId         Int
+  PANNumber          String?   @db.NVarChar(Max)
+  AadharNumber       String?   @db.NVarChar(Max)
+  UAN                String?   @db.NVarChar(Max)
+  PFNumber           String?   @db.NVarChar(Max)
+  ESINumber          String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  Employees          Employees @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_EmployeeTaxStatutoryNumber_Employees_EmployeeId")
+
+  @@index([EmployeeId], map: "IX_EmployeeTaxStatutoryNumber_EmployeeId")
+}
+
+model Holidays {
+  Id                 Int       @id(map: "PK_Holidays") @default(autoincrement())
+  StartDate          DateTime
+  EndDate            DateTime
+  Event              String?   @db.NVarChar(Max)
+  Description        String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+}
+
+model ImagekitDetails {
+  FileId             String?             @db.NVarChar(Max)
+  IsPrivateFile      Boolean
+  Url                String?             @db.NVarChar(Max)
+  Thumbnail          String?             @db.NVarChar(Max)
+  FileType           String?             @db.NVarChar(Max)
+  FilePath           String?             @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  FileName           String?             @db.NVarChar(Max)
+  Id                 String              @id(map: "PK_ImagekitDetails") @default(dbgenerated("00000000-0000-0000-0000-000000000000"), map: "DF__ImagekitDeta__Id__1DB06A4F") @db.UniqueIdentifier
+  EmployeeContracts  EmployeeContracts[]
+  EmployeeDocuments  EmployeeDocuments[]
+  Employees          Employees[]
+}
+
+model LeaveCategories {
+  Id                        Int                         @id(map: "PK_LeaveCategories") @default(autoincrement())
+  Category                  String?                     @db.NVarChar(Max)
+  Description               String?                     @db.NVarChar(Max)
+  RecordStatus              Int
+  CreatedDateTimeUtc        DateTime
+  UpdatedDateTimeUtc        DateTime?
+  EmployeeLeaveApplications EmployeeLeaveApplications[]
+}
+
+model LeaveTypes {
+  Id                        Int                         @id(map: "PK_LeaveTypes") @default(autoincrement())
+  Name                      String?                     @db.NVarChar(Max)
+  Description               String?                     @db.NVarChar(Max)
+  TotalLeaves               Int                         @default(0, map: "DF__LeaveType__Total__1EA48E88")
+  CreatedDateTimeUtc        DateTime                    @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__LeaveType__Creat__1F98B2C1")
+  RecordStatus              Int
+  UpdatedDateTimeUtc        DateTime?
+  EmployeeLeaveApplications EmployeeLeaveApplications[]
+  EmployeeLeaves            EmployeeLeaves[]
+}
+
+model Locations {
+  Id          Int     @id(map: "PK_Locations") @default(autoincrement())
+  CountryName String? @db.NVarChar(Max)
+  StateCode   String? @db.NVarChar(Max)
+  StateName   String? @db.NVarChar(Max)
+  CityName    String? @db.NVarChar(Max)
+  PostalCode  String? @db.NVarChar(Max)
+  MetroCity   String? @db.NVarChar(Max)
+}
+
+model Notification {
+  Id                 String     @id(map: "PK_Notification") @db.UniqueIdentifier
+  Title              String?    @db.NVarChar(Max)
+  Description        String?    @db.NVarChar(Max)
+  Type               String?    @db.NVarChar(Max)
+  HasRead            Boolean
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  EmployeeId         Int?
+  Employees          Employees? @relation(fields: [EmployeeId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Notification_Employees_EmployeeId")
+
+  @@index([EmployeeId], map: "IX_Notification_EmployeeId")
+}
+
+model ProjectManagers {
+  Id         Int       @id(map: "PK_ProjectManagers") @default(autoincrement())
+  ProjectId  Int
+  EmployeeId Int
+  Employees  Employees @relation(fields: [EmployeeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ProjectManagers_Employees_EmployeeId")
+  Projects   Projects  @relation(fields: [ProjectId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ProjectManagers_Projects_ProjectId")
+
+  @@index([EmployeeId], map: "IX_ProjectManagers_EmployeeId")
+  @@index([ProjectId], map: "IX_ProjectManagers_ProjectId")
+}
+
+model Projects {
+  Id                 Int               @id(map: "PK_Projects") @default(autoincrement())
+  Name               String?           @db.NVarChar(Max)
+  Description        String?           @db.NVarChar(Max)
+  Type               String?           @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  ProjectManagers    ProjectManagers[]
+}
+
+model RealtimeAttendanceLogs {
+  Id        Int       @id(map: "PK_RealtimeAttendanceLogs") @default(autoincrement())
+  UId       Int
+  UserId    String?   @db.NVarChar(Max)
+  Timestamp DateTime?
+  Status    Int?
+  Punch     String?   @db.NVarChar(Max)
+}
+
+model Resources {
+  Id                  Int                   @id(map: "PK_Resources") @default(autoincrement())
+  ResourceTypeId      Int
+  BranchId            Int
+  Specification       String?               @db.NVarChar(Max)
+  SystemName          String?               @db.NVarChar(Max)
+  PurchaseDate        DateTime
+  PhysicalLocation    String?               @db.NVarChar(Max)
+  Status              Int
+  IsFree              Boolean
+  Remarks             String?               @db.NVarChar(Max)
+  RecordStatus        Int
+  CreatedDateTimeUtc  DateTime
+  UpdatedDateTimeUtc  DateTime?
+  CreatedByUserId     Int?
+  UpdatedByUserId     Int?
+  Branches            Branches              @relation(fields: [BranchId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Resources_Branches_BranchId")
+  ResourceTypes       ResourceTypes         @relation(fields: [ResourceTypeId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Resources_ResourceTypes_ResourceTypeId")
+  ResourceUserHistory ResourceUserHistory[]
+
+  @@index([BranchId], map: "IX_Resources_BranchId")
+  @@index([ResourceTypeId], map: "IX_Resources_ResourceTypeId")
+}
+
+model ResourceTypes {
+  Id                 Int         @id(map: "PK_ResourceTypes") @default(autoincrement())
+  Name               String?     @db.NVarChar(Max)
+  Description        String?     @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  Resources          Resources[]
+}
+
+model ResourceUserHistory {
+  Id                 String    @id(map: "PK_ResourceUserHistory") @db.UniqueIdentifier
+  ResourceId         Int
+  Description        String?   @db.NVarChar(Max)
+  LogDateTime        DateTime
+  LogBy              Int
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  Employees          Employees @relation(fields: [LogBy], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ResourceUserHistory_Employees_LogBy")
+  Resources          Resources @relation(fields: [ResourceId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ResourceUserHistory_Resources_ResourceId")
+
+  @@index([LogBy], map: "IX_ResourceUserHistory_LogBy")
+  @@index([ResourceId], map: "IX_ResourceUserHistory_ResourceId")
+}
+
+model Roles {
+  Id       Int     @id(map: "PK_Roles") @default(autoincrement())
+  Name     String? @db.NVarChar(Max)
+  Priority Int     @default(0, map: "DF__Roles__Priority__208CD6FA")
+  Users    Users[]
+}
+
+model SystemFlags {
+  Id                 Int       @id(map: "PK_SystemFlags") @default(autoincrement())
+  Name               String?   @db.NVarChar(Max)
+  Value              String?   @db.NVarChar(Max)
+  Description        String?   @db.NVarChar(Max)
+  RecordStatus       Int
+  CreatedDateTimeUtc DateTime
+  UpdatedDateTimeUtc DateTime?
+  CreatedByUserId    Int?
+  UpdatedByUserId    Int?
+  Tags               String?   @db.NVarChar(Max)
+}
+
+model Users {
+  Id                 Int         @id(map: "PK_Users") @default(autoincrement())
+  Username           String?     @db.VarChar(150)
+  EmailAddress       String?     @db.VarChar(150)
+  Password           String?     @db.VarChar(150)
+  Salt               Bytes?      @db.VarBinary(32)
+  IsVerified         Boolean?    @default(dbgenerated("CONVERT([bit],(1))"), map: "DF__Users__IsVerifie__2180FB33")
+  IsAdmin            Boolean
+  RoleId             Int?
+  Disabled           Boolean
+  RecordStatus       Int
+  CreatedByUserId    Int?
+  CreatedDateTimeUtc DateTime    @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__Users__CreatedDa__22751F6C")
+  UpdatedByUserId    Int?
+  UpdatedDateTimeUtc DateTime?
+  CipherText         String?     @db.NVarChar(Max)
+  Employees          Employees[]
+  Roles              Roles?      @relation(fields: [RoleId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Users_Roles_RoleId")
+
+  @@index([RoleId], map: "IX_Users_RoleId")
+}
